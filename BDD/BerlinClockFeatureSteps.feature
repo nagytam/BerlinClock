@@ -49,3 +49,14 @@ RRRR
 OOOOOOOOOOO
 OOOO
 """
+
+Scenario: Invalid character in input
+When the time is "xx:yy:zz"
+Then the clock should look like
+"""
+O
+OOOO
+OOOO
+OOOOOOOOOOO
+OOOO
+"""
