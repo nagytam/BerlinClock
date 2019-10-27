@@ -1,21 +1,39 @@
 ﻿using BerlinClock.Classes;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BerlinClock
 {
+    /// <summary>
+    /// Time Converter based on the Berlin Clock schema 
+    /// Further information: http://www.3quarks.com/en/BerlinClock/
+    /// </summary>
     public class TimeConverter : ITimeConverter
     {
-        // Specification: http://www.3quarks.com/en/BerlinClock/
+        // Open points:
+        // 1) efficiency (string vs. StringBuilder)
+        // 2) extend testcases with input input handling
+
+        /// <summary>
+        /// Converts the specified time into the Berlin Clock string representation.
+        /// </summary>
+        /// <param name="aTime">the time in "hh:MM:ss" format (note, that "24:00:00 shall be treated a valid input)</param>
+        /// <returns>Berlin clock string representation</returns>
         public string convertTime(string aTime)
         {
-            //var date = DateTime.Parse(aTime); // cannot be used as "24:00:00" shall be treated as valid input
-            //int hours = date.Hour;
-            //int minutes = date.Minute;
-            //int seconds = date.Second;
-            int hours = int.Parse(aTime.Substring(0, 2));
-            int minutes = int.Parse(aTime.Substring(3, 2));
-            int seconds = int.Parse(aTime.Substring(6, 2));
+            #region Validate and parse input 
+            var match = Regex.Match(aTime, "(?<hours>\\d\\d):(?<minutes>\\d\\d):(?<seconds>\\d\\d)");
+
+            if (!match.Success)
+            {
+                return string.Empty; // no exceptions are expected, but an empty string on invalid input
+            }
+
+            int hours = int.Parse(match.Groups["hours"].Value);
+            int minutes = int.Parse(match.Groups["minutes"].Value);
+            int seconds = int.Parse(match.Groups["seconds"].Value);
+            #endregion
 
             #region First Row (Seconds)
             var isYellow = (seconds % 2) == 0;
@@ -44,7 +62,7 @@ namespace BerlinClock
             //  var fourthRow = "YYRYYRYYRYY";
             #endregion
 
-            #region Fifth Row ()
+            #region Fifth Row (Remaining Minutes)
             numberOfLamps = minutes % 5;
             var fifthRow = RepeatCharacters('Y', numberOfLamps).Pad('O', 4 - numberOfLamps);
             // var fifthRow = "YYYY";
